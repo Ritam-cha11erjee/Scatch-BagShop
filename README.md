@@ -1,5 +1,6 @@
 🚀 Live Demo: https://scatch-bagshop.onrender.com
 (Note: Please allow 30 seconds for the server to wake up on the first load.)
+Tech Stack: MongoDB, Express.js, EJS, Node.js
 
 Special Note:
 /owners/admin route is used for creating & deleting products.
