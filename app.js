@@ -1,21 +1,27 @@
-const express = require('express');
-const app =  express();
-const cookieParser = require('cookie-parser');
-const path = require('path');
-const expressSession = require('express-session');
-const flash = require('connect-flash');
-
-const indexRouter = require('./routes/index');
-const ownersRouter = require('./routes/ownersRouter');
-const usersRouter = require('./routes/usersRouter');
-const productsRouter = require('./routes/productsRouter');
 require("dotenv").config();
 
-const db = require('./config/mongoose-connection')
+const dns = require("node:dns");
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
+const db = require("./config/mongoose-connection");
+
+const express = require("express");
+const app = express();
+
+const cookieParser = require("cookie-parser");
+const path = require("path");
+const expressSession = require("express-session");
+const flash = require("connect-flash");
+
+const indexRouter = require("./routes/index");
+const ownersRouter = require("./routes/ownersRouter");
+const usersRouter = require("./routes/usersRouter");
+const productsRouter = require("./routes/productsRouter");
 
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
 app.use(
     expressSession({
         resave: false,
@@ -23,15 +29,15 @@ app.use(
         secret: process.env.EXPRESS_SESSION_SECRET,
     })
 );
+
 app.use(flash());
 app.use(express.static(path.join(__dirname, "public")));
-app.set('view engine', 'ejs');
+app.set("view engine", "ejs");
 
-
-app.use('/', indexRouter);
-app.use('/owners', ownersRouter);
-app.use('/users', usersRouter);
-app.use('/products', productsRouter);
+app.use("/", indexRouter);
+app.use("/owners", ownersRouter);
+app.use("/users", usersRouter);
+app.use("/products", productsRouter);
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Server live on port ${PORT}`));

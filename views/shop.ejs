@@ -6,63 +6,129 @@
                 <%= success %>
             </span>
         </div>
-        <% } %>
+    <% } %>
 
-            <div class="w-full h-screen flex items-start px-20 py-10">
-                <div class="w-[22%] flex h-screen flex-col items-start text-[1.3rem]">
-                    <div class="flex items-center gap-2">
-                        <h3>sort by</h3>
-                        <form action="/shop">
-                            <select class="border-[1px] px-2 py-1" name="sortby" id="">
-                                <option value="popular">Popular</option>
-                                <option value="newest">Newest</option>
-                            </select>
-                        </form>
-                    </div>
-                    <div class="flex flex-col mt-20">
-                        <a class="block w-fit mb-2" href="/shop">New Collection</a>
-                        <a class="block w-fit mb-2" href="/shop">All Products</a>
-                        <a class="block w-fit mb-2" href="/shop/discounts">Discounted Products</a>
-                    </div>
-                    <div class="mt-32">
-                        <h3 class="block w-fit mb-2" href="">Filter by :</h3>
-                        <a class="block w-fit mb-2" href="/shop">Availability</a>
-                        <a class="block w-fit mb-2" href="/shop/discounts">Discount</a>
-                    </div>
-                </div>
-                <div class="w-[78%] flex flex-col gap-5 h-screen">
-                    <div class="flex items-start flex-wrap gap-5">
-                        <% products.forEach(function(product){ %>
-                            <div class="w-[13rem]">
-                                <div class="w-full h-52 flex items-center justify-center bg-[<%= product.bgcolor %>]">
-                                    <img class="h-[11rem]"
-                                        src="data:image/jpeg;base64,<%= product.image.toString('base64') %>" alt="">
-                                </div>
-                                <div
-                                    class="flex justify-between bg-[<%= product.panelcolor %>] items-center px-4 py-4 text-[<%= product.textcolor %>]">
-                                    <div>
-                                        <h3>
-                                            <%= product.name %>
-                                        </h3>
-                                        <div class="flex">
-                                            <h4>₹ <%= product.price %>
-                                            </h4>
-                                            <% if(product.discount>0){ %>
-                                                <div class="ml-2 rounded-3xl px-1.5 py-0.5 text-[0.8rem] text-[<%=product.panelcolor%>] bg-[<%=product.textcolor%>]">
-                                                    -<%=product.discount%>%
-                                                </div>
-                                                <% } %>
-                                        </div>
+<% const renderProductCard = function(product) { %>
+    <div
+        class="w-[13rem] rounded-md overflow-hidden transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg group">
 
-                                    </div>
-                                    <a class="w-7 h-7 flex items-center justify-center rounded-full bg-white"
-                                        href="/addtocart/<%= product._id %>">
-                                        <i class="ri-add-line"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <% }) %>
-                    </div>
+        <div
+            class="w-full h-52 flex items-center justify-center bg-[<%= product.bgcolor %>] overflow-hidden">
+            <img class="h-[11rem] transition-transform duration-700 ease-in-out group-hover:scale-110 object-contain"
+                src="data:image/jpeg;base64,<%= product.image.toString('base64') %>"
+                alt="<%= product.name %>">
+        </div>
+
+        <div
+            class="flex justify-between bg-[<%= product.panelcolor %>] items-center px-4 py-4 text-[<%= product.textcolor %>]">
+            <div>
+                <h3 class="font-medium">
+                    <%= product.name %>
+                </h3>
+                <div class="flex items-center mt-0.5">
+                    <h4 class="font-semibold">₹ <%= product.price %>
+                    </h4>
+                    <% if(product.discount> 0){ %>
+                        <div
+                            class="ml-2 rounded-3xl px-1.5 py-0.5 text-[0.8rem] text-[<%=product.panelcolor%>] bg-[<%=product.textcolor%>] font-bold">
+                            -<%= product.discount %>%
+                        </div>
+                        <% } %>
                 </div>
             </div>
-            <%- include('./partials/footer') %>
+
+            <a class="w-7 h-7 flex items-center justify-center rounded-full bg-white text-black transition-all duration-300 ease-in-out group-hover:scale-110 hover:!bg-zinc-100 active:scale-95 shadow-sm"
+                href="/addtocart/<%= product._id %>">
+                <i class="ri-add-line"></i>
+            </a>
+        </div>
+    </div>
+<% } %>
+
+
+<div class="w-full flex items-start px-10 pt-10 h-[calc(100vh-70px)] overflow-hidden">
+
+    <!-- Left Sidebar -->
+    <div class="w-[22%] pl-10 flex h-full flex-col items-start text-[1.3rem] shrink-0 border-r border-zinc-200 pr-10">
+        <div class="flex items-center gap-2">
+            <h3>sort by</h3>
+            <form action="/shop">
+                <select class="border-[1px] px-2 py-1" name="sortby" id="">
+                    <option value="popular">Popular</option>
+                    <option value="newest">Newest</option>
+                </select>
+            </form>
+        </div>
+        <div class="flex flex-col mt-20">
+            <a class="block w-fit mb-2 <%= selectedCategory == 'newCollection'?'font-bold underline':'' %>"
+                href="/shop/newCollection">New Collection</a>
+            <a class="block w-fit mb-2 <%= selectedCategory == 'all'?'font-bold underline':'' %>"
+                href="/shop">All Products</a>
+            <a class="block w-fit mb-2 <%= selectedCategory == 'discounts'?'font-bold underline':'' %>"
+                href="/shop/discounts">Discounted Products</a>
+        </div>
+        <div class="mt-32">
+            <h3 class="block w-fit mb-2" href="">Filter by :</h3>
+            <a class="block w-fit mb-2" href="/shop">Availability</a>
+            <a class="block w-fit mb-2" href="/shop/discounts">Discount</a>
+        </div>
+    </div>
+    <!-- Products Container -->
+    <div class="w-[78%] pb-10 pl-10 h-full flex flex-col gap-5 overflow-y-auto content-start scrollbar-thin scrollbar-thumb-zinc-300 scrollbar-track-transparent hover:scrollbar-thumb-zinc-400">
+
+        <!-- Section 1: New Collection -->
+        <% if(selectedCategory == 'all' || selectedCategory == 'newCollection'){ %>
+        <div>
+            <h2 class="text-2xl font-semibold mb-4 text-zinc-800">New Collection</h2>
+            <div class="flex items-start flex-wrap gap-5">
+                <% newCollection.forEach((product) => { %>
+                    <% renderProductCard(product); %>
+                <% }) %>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Section 2: Browse Products -->
+        <% if(selectedCategory == 'all' || selectedCategory == 'discounts'){ %>
+        <div>
+            <h2 class="text-2xl font-semibold mb-4 text-zinc-800">Browse Products</h2>
+            <div class="flex items-start flex-wrap gap-5">
+                <% browseProducts.forEach((product) => { %>
+                    <% renderProductCard(product); %>
+                <% }) %>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- If required products are not present -->
+        <% if(selectedCategory === 'newCollection' && newCollection.length == 0) { %>
+            <p class="text-zinc-500 text-lg">No new collection products found.</p>
+        <% } %>
+
+        <% if(selectedCategory === 'discounts' && products.length == 0) { %>
+            <p class="text-zinc-500 text-lg">No discounted products found.</p>
+        <% } %>
+
+    </div>
+</div>
+
+<style>
+        .overflow-y-auto::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+            background-color: #e4e4e7;
+            border-radius: 10px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+            background-color: #d4d4d8;
+        }
+    </style>
+
+    <%- include('./partials/footer') %>

@@ -1,55 +1,261 @@
 <%- include('./partials/header') %>
-    <div class="w-full h-screen flex items-start px-20 py-10 gap-10">
-        <div class="flex flex-wrap gap-7 pb-10">
-        <% user.cart.forEach((product)=> { %>
-            <div class="w-[45%] rounded-md overflow-hidden">
-                <div class="w-full h-60 bg-[<%=product.bgcolor%>] flex justify-center items-center">
-                    <img class="h-[12rem]" src="data:image/jpeg;base64, <%= product.image.toString('base64') %>" alt="">
-                </div>
-                <div class="w-full flex justify-between px-5 py-4 bg-[<%=product.panelcolor%>]">
-                    <h3 class="text-2xl inline-block w-[10rem]"><%=product.name%></h3>
-                    <div class="flex items-center gap-1">
-                        <i class="cursor-pointer w-6 h-6 bg-white flex rounded-full items-center justify-center ri-add-line"></i>
-                        <div class="px-1.5 py-0.5 rounded-md bg-white text-black">01</div>
-                        <i class="cursor-pointer w-6 h-6 bg-white flex rounded-full items-center justify-center ri-subtract-line"></i>
+    <!-- Using h-screen and overflow-hidden so the whole page doesn't scroll, allowing independent container scrolling -->
+    <div class="w-full h-[calc(100vh-80px)] flex items-start px-20 pt-10 gap-10 overflow-hidden">
+
+        <!-- LEFT SIDE: Flexbox holding exactly 2 columns, scrollable if it exceeds screen height -->
+        <div
+            class="w-[70%] h-full flex flex-wrap gap-7 pb-20 overflow-y-auto content-start scrollbar-thin scrollbar-thumb-zinc-300 scrollbar-track-transparent hover:scrollbar-thumb-zinc-400">
+            <% user.cart.forEach((item)=> { %>
+                <% let product=item.product; %>
+
+                    <div class="w-[calc(40%-14px)] rounded-md overflow-hidden shrink-0 mx-3 relative">
+                        <button data-id="<%= product._id %>"
+                            class="close-btn absolute font-sans font-semibold top-4 right-4 rounded-full w-8 h-8 bg-[<%=product.textcolor%>] text-white">X</button>
+                        <div class="w-full h-60 bg-[<%=product.bgcolor%>] flex justify-center items-center">
+                            <img class="h-[12rem]" src="data:image/jpeg;base64, <%= product.image.toString('base64') %>"
+                                alt="">
+                        </div>
+                        <div class="w-full flex justify-between px-5 py-4 bg-[<%=product.panelcolor%>]">
+                            <h3 class="text-2xl inline-block w-[10rem]">
+                                <%=product.name%>
+                            </h3>
+                            <div class="flex items-center gap-1">
+                                <i data-id="<%= product._id%>"
+                                    class="qty-btn select-none inc-btn cursor-pointer w-6 h-6 bg-white flex rounded-full items-center justify-center ri-add-line"></i>
+                                <div id="qty-<%=product._id%>"
+                                    class="qtyDiv select-none px-1.5 py-0.5 rounded-md bg-white text-black">
+                                    <%= String(item.quantity).padStart(2, '0' ) %>
+                                </div>
+                                <i data-id="<%= product._id%>"
+                                    class="qty-btn select-none dec-btn cursor-pointer w-6 h-6 bg-white flex rounded-full items-center justify-center ri-subtract-line"></i>
+                            </div>
+                        </div>
+                        <div class="flex text-white items-center justify-between px-5 py-3 bg-[<%=product.textcolor%>]">
+                            <h4 class="text-lg">Net Total</h4>
+                            <h2 id="total-<%= product._id %>" data-discount="<%= product.discount%>"
+                                data-price="<%= product.price %>" class="text-lg">₹ <%= product.price * item.quantity %>
+                            </h2>
+                        </div>
                     </div>
-                </div>
-                <div class="flex text-white items-center justify-between px-5 py-3 bg-[<%=product.textcolor%>]">
-                    <h4 class="text-lg">Net Total</h4>
-                    <h2 class="text-lg">₹ <%=product.price%></h2>
-                </div>
-            
-            </div>
-        <% }) %>
+                <% }) %>
         </div>
-            <div class="w-[70%]">
-                <h3 class="text-xl">Price Breakdown</h3>
-                <div class="px-10 mt-5">
-                    <div class="flex mt-2">
-                        <h4 class="w-1/3">Total MRP</h4>
-                        <% var sum = 0; var discount = 0; %>
-                        <% user.cart.forEach((product) => {sum += parseFloat(product.price); discount += parseFloat(product.discount?product.discount:0)}) %>
-                        <h4>₹ <%=sum%></h4>
+
+        <!-- RIGHT SIDE: Fixed position panel, never scrolls away -->
+        <div class="w-[30%] h-full shrink-0 border-l border-zinc-200 pl-10">
+            <h2 class="text-xl font-medium">Price Breakdown</h2>
+            <div class="px-2 mt-3">
+                <h3 class="text-xl font-medium">Items:</h3>
+                <ul class="bg-zinc-300 p-3 rounded-md">
+                    <% user.cart.forEach((item)=> { %>
+                        <div class="flex justify-between">
+                            <li class="list-disc list-inside">
+                                <%= item.product.name %>
+                            </li>
+                            <div class="w-[35%] flex justify-between">
+                                <span id = "summary-item-qty-<%= item.product._id %>">Qty: <%= item.quantity %></span>
+                                <span id = "summary-item-total-price-<%= item.product._id %>" class="text-gray-600 font-bold">₹ <%= item.product.price * item.quantity%></span>
+                            </div>
+                        </div>
+                        <% }) %>
+                </ul>
+                <div class="bg-zinc-100 p-3 rounded-md mt-3">
+                    <div class="flex justify-between">
+                        <h4 class="text-zinc-800">Total MRP</h4>
+                        <% var sum=0; var discount=0; %>
+                            <% user.cart.forEach((item)=> {
+                                sum += parseFloat(item.product.price) * item.quantity;
+                                discount += parseFloat(item.product.discount ? item.product.discount : 0) *
+                                item.quantity;
+                                }) %>
+                                <h4 id="summary-mrp" class="font-medium">₹ <%=sum%>
+                                </h4>
                     </div>
-                    <div class="flex mt-2">
-                        <h4 class="w-1/3">Discount on MRP</h4>
-                        <h4>₹ <%= discount %></h4>
+                    <div class="flex mt-1 justify-between">
+                        <h4 class="text-zinc-800">Discount on MRP</h4>
+                        <h4 id='summary-discount' class="text-green-800">- ₹ <%= discount %>
+                        </h4>
                     </div>
-                    <div class="flex mt-2">
-                        <h4 class="w-1/3">Platform Fee</h4>
+                    <div class="flex mt-1 justify-between">
+                        <h4 class="text-zinc-800">Platform Fee</h4>
                         <h4>₹ 20</h4>
                     </div>
-                    <div class="flex mt-2">
-                        <h4 class="w-1/3">Shipping Fee</h4>
-                        <h4>FREE</h4>
+                    <div class="flex mt-1 justify-between">
+                        <h4 class="text-zinc-800">Shipping Fee</h4>
+                        <h4 class="text-green-800">FREE</h4>
                     </div>
                 </div>
-                <div class="w-full h-[1px] bg-black mt-10"></div>
-                <div class="flex mt-5">
-                    <h3 class="w-1/3 text-xl">Total Amount</h3>
-                    <h3 class="font-semibold text-xl text-green-600">₹ <%=sum-discount-20%></h3>
-                </div>
-                <!-- <form action=""></form> -->
+                <div class="w-full h-[1px] bg-zinc-300 mt-8"></div>
             </div>
+            <div class="flex mt-5 justify-between items-center">
+                <h3 class="text-xl font-medium">Total Amount</h3> <% let totalAmt = user.cart.length>0?((sum - discount) + 20):0 %>
+                <h3 id="summary-total" class="font-semibold text-2xl text-green-600">₹ <%= totalAmt %>
+                </h3>
+            </div>
+        </div>
     </div>
+
+    <!-- Delete, Quanitity handler -->
+    <script>
+        let pendingUpdates = {};
+        let debounceTimer = null;
+
+        // Target the scrollable left container
+        const leftContainer = document.querySelector('.overflow-y-auto');
+
+        // 1. RESTORE SCROLL POSITION: On page load, check if a saved position exists
+        if (leftContainer) {
+            const savedScrollTop = localStorage.getItem('cartScrollPosition');
+            if (savedScrollTop) {
+                leftContainer.scrollTop = parseFloat(savedScrollTop);
+                localStorage.removeItem('cartScrollPosition');
+            }
+        }
+
+        document.querySelectorAll('.close-btn').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const productId = btn.getAttribute('data-id');
+
+                // Save scroll position so the page stays in the exact same spot after the item disappears
+                const leftContainer = document.querySelector('.overflow-y-auto');
+                if (leftContainer) {
+                    localStorage.setItem('cartScrollPosition', leftContainer.scrollTop);
+                }
+
+                try {
+                    // Send a request to remove the item from the array
+                    const response = await fetch(`/cart/remove/${productId}`, {
+                        method: 'DELETE', // Using DELETE method for semantic correctness
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (response.ok) {
+                        // Refresh the layout to recalculate the totals and update the view context
+                        window.location.reload();
+                    } else {
+                        console.error("Failed to delete item from cart");
+                        localStorage.removeItem('cartScrollPosition');
+                    }
+                } catch (err) {
+                    console.error("Error connecting to server:", err);
+                    localStorage.removeItem('cartScrollPosition');
+                }
+            });
+        });
+
+        document.querySelectorAll('.qty-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const productId = btn.getAttribute('data-id');
+                const qtyDiv = document.getElementById(`qty-${productId}`);
+                const totalDiv = document.getElementById(`total-${productId}`);
+                const unitPrice = parseFloat(totalDiv.getAttribute('data-price'));
+
+                let currentQty = parseInt(qtyDiv.innerText);
+
+                // 1. Instant UI adjustments (Optimistic UI)
+                if (btn.classList.contains('inc-btn')) {
+                    currentQty += 1;
+                } else if (btn.classList.contains('dec-btn') && currentQty > 1) {
+                    currentQty -= 1;
+                }
+
+                // Update individual item view values instantly
+                qtyDiv.innerText = String(currentQty).padStart(2, '0');
+                totalDiv.innerText = `₹ ${unitPrice * currentQty}`;
+                //Updating Right side totals
+                updateRightSideTotals();
+
+                // 2. Queue the modifications locally
+                pendingUpdates[productId] = currentQty;
+
+                // 3. Debounce: Delay hitting Render/Atlas until typing or clicking stops
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    sendQuantityUpdates();
+                }, 500);
+            });
+        });
+
+        //Update Right Side Summary Dynamically
+        function updateRightSideTotals() {
+            let newTotalMRP = 0;
+            let newDiscount = 0;
+
+            document.querySelectorAll('[id^="total-"]').forEach((NetTotalElement) => {
+
+                const productId = NetTotalElement.id.replace('total-', '');
+                const currentQty = parseInt(document.getElementById(`qty-${productId}`).innerText);
+
+                const unitPrice = parseFloat(NetTotalElement.getAttribute('data-price')) || 0;
+                const unitDiscount = parseFloat(NetTotalElement.getAttribute('data-discount')) || 0;
+
+                // Multiply unit values by the live quantities visible on screen
+                newTotalMRP += unitPrice * currentQty;
+                newDiscount += unitDiscount * currentQty;
+
+                document.getElementById(`summary-item-total-price-${productId}`).innerText = `₹ ${unitPrice*currentQty}`;
+                document.getElementById(`summary-item-qty-${productId}`).innerText = `Qty: ${currentQty}`;
+
+            })
+
+            const summaryMrp = document.getElementById('summary-mrp');
+            const summaryDiscount = document.getElementById('summary-discount');
+            const summaryTotal = document.getElementById('summary-total');
+
+            if (summaryMrp) summaryMrp.innerText = `₹ ${newTotalMRP}`;
+            if (summaryDiscount) summaryDiscount.innerText = `- ₹ ${newDiscount}`;
+            if (summaryTotal) summaryTotal.innerText = `₹ ${newTotalMRP - newDiscount + 20}`;
+        }
+
+        async function sendQuantityUpdates() {
+            if (Object.keys(pendingUpdates).length === 0) return;
+
+            const updatesToSend = { ...pendingUpdates };
+            pendingUpdates = {};
+
+            if (leftContainer) {
+                localStorage.setItem('cartScrollPosition', leftContainer.scrollTop);
+            }
+
+            try {
+                await fetch('/cart/update-quantities', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ updates: updatesToSend }),
+                    keepalive: true // Protects data transmission during quick tab reloads
+                });
+
+            } catch (err) {
+                console.error("Failed to synchronize quantity data:", err);
+            }
+        }
+
+        // Emergency push contexts to ensure safety when someone triggers rapid navigation changes
+        window.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') sendQuantityUpdates();
+        });
+        window.addEventListener('pagehide', sendQuantityUpdates);
+    </script>
+
+    <style>
+        /* Scrollbar CSS */
+        .overflow-y-auto::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+            background-color: #e4e4e7;
+            border-radius: 10px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+            background-color: #d4d4d8;
+        }
+    </style>
+
     <%- include('./partials/footer') %>

@@ -8,6 +8,10 @@ const productSchema = mongoose.Schema({
         type: Number,
         default: 0
     },
+    newCollection: {
+        type: Boolean,
+        default: false,
+    },
     bgcolor: String,
     panelcolor: String,
     textcolor: String
