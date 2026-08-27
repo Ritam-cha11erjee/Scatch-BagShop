@@ -15,6 +15,11 @@ const userSchema = mongoose.Schema({
             min: [1, 'Quantity cannot be less than 1.']
         }
     }],
+    role: {
+        type: String,
+        default: "user",
+        immutable: true
+    },
     orders: {
         type: Array,
         default: []

@@ -8,6 +8,11 @@ const ownerSchema = mongoose.Schema({
         type: Array,
         default: []
     },
+    role: {
+        type: String,
+        default: "owner",
+        immutable: true
+    },
     picture: String,
     gstin: String,
 });

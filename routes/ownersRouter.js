@@ -3,10 +3,14 @@ const router = express.Router();
 const ownerModel = require('../models/owner-model');
 const productModel = require('../models/product-model');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const { loginOwner } = require('../controllers/authController');
 const isLoggedInAsOwner = require('../middlewares/isLoggedInAsOwner');
-const {generateToken} = require('../utils/generateTokens');
+const { generateAccessToken } = require('../utils/generateTokens');
+const { createRefreshSession } = require('../utils/refreshSessions');
+const {
+    accessTokenMaxAge,
+    refreshTokenMaxAge
+} = require('../utils/authConfig');
 
 router.get('/createproduct', isLoggedInAsOwner, (req, res) => {
     let success = req.flash("success");
@@ -36,11 +40,29 @@ if (process.env.NODE_ENV === 'development') {
                 let createdOwner = await ownerModel.create({
                     fullname,
                     email,
+                    role: "owner",
                     password: hash
                 });
 
-                let token = generateToken(createdOwner);
-                res.cookie('token', token);
+                const ownerRefreshToken = await createRefreshSession(
+                    createdOwner,
+                    "owner"
+                );
+
+                res.cookie("ownerAccessToken", generateAccessToken(createdOwner), {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "lax",
+                    maxAge: accessTokenMaxAge
+                });
+
+                res.cookie("ownerRefreshToken", ownerRefreshToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "lax",
+                    path: "/",
+                    maxAge: refreshTokenMaxAge
+                });
                 res.redirect('/owners/admin');
             })
         })
