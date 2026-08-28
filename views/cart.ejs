@@ -1,25 +1,25 @@
 <%- include('./partials/header') %>
     <!-- Using h-screen and overflow-hidden so the whole page doesn't scroll, allowing independent container scrolling -->
-    <div class="w-full h-[calc(100vh-80px)] flex items-start px-20 pt-10 gap-10 overflow-hidden">
+    <div class="flex w-full min-h-[calc(100vh-80px)] flex-col items-start gap-6 px-4 pt-6 sm:px-6 lg:flex-row lg:gap-10 lg:px-20 lg:pt-10 lg:overflow-hidden">
 
         <!-- LEFT SIDE: Flexbox holding exactly 2 columns, scrollable if it exceeds screen height -->
         <div
-            class="w-[70%] h-full flex flex-wrap gap-7 pb-20 overflow-y-auto content-start scrollbar-thin scrollbar-thumb-zinc-300 scrollbar-track-transparent hover:scrollbar-thumb-zinc-400">
+            class="grid w-full grid-cols-2 content-start gap-3 pb-10 lg:h-full lg:w-[70%] lg:flex lg:flex-wrap lg:gap-7 lg:overflow-y-auto lg:pb-20 scrollbar-thin scrollbar-thumb-zinc-300 scrollbar-track-transparent hover:scrollbar-thumb-zinc-400 sm:gap-5">
             <% user.cart.forEach((item)=> { %>
                 <% let product=item.product; %>
 
-                    <div class="w-[calc(40%-14px)] rounded-md overflow-hidden shrink-0 mx-3 relative">
+                    <div class="relative mx-0 w-full min-w-0 shrink-0 overflow-hidden rounded-md lg:mx-3 lg:w-[calc(40%_-_14px)]">
                         <button data-id="<%= product._id %>"
                             class="close-btn absolute font-sans font-semibold top-4 right-4 rounded-full w-8 h-8 bg-[<%=product.textcolor%>] text-white">X</button>
-                        <div class="w-full h-60 bg-[<%=product.bgcolor%>] flex justify-center items-center">
-                            <img class="h-[12rem]" src="data:image/jpeg;base64, <%= product.image.toString('base64') %>"
+                        <div class="flex h-36 w-full items-center justify-center bg-[<%=product.bgcolor%>] sm:h-60">
+                            <img class="h-28 max-w-full sm:h-[12rem]" src="data:image/jpeg;base64, <%= product.image.toString('base64') %>"
                                 alt="">
                         </div>
-                        <div class="w-full flex justify-between px-5 py-4 bg-[<%=product.panelcolor%>]">
-                            <h3 class="text-2xl inline-block w-[10rem]">
+                        <div class="flex w-full items-center justify-between gap-2 bg-[<%=product.panelcolor%>] px-2 py-2 sm:px-5 sm:py-4">
+                            <h3 class="min-w-0 flex-1 break-words text-sm sm:text-2xl">
                                 <%=product.name%>
                             </h3>
-                            <div class="flex items-center gap-1">
+                            <div class="flex shrink-0 items-center gap-0.5 sm:gap-1">
                                 <i data-id="<%= product._id%>"
                                     class="qty-btn select-none inc-btn cursor-pointer w-6 h-6 bg-white flex rounded-full items-center justify-center ri-add-line"></i>
                                 <div id="qty-<%=product._id%>"
@@ -30,10 +30,10 @@
                                     class="qty-btn select-none dec-btn cursor-pointer w-6 h-6 bg-white flex rounded-full items-center justify-center ri-subtract-line"></i>
                             </div>
                         </div>
-                        <div class="flex text-white items-center justify-between px-5 py-3 bg-[<%=product.textcolor%>]">
-                            <h4 class="text-lg">Net Total</h4>
+                        <div class="flex items-center justify-between bg-[<%=product.textcolor%>] px-3 py-2 text-white sm:px-5 sm:py-3">
+                            <h4 class="text-sm sm:text-lg">Net Total</h4>
                             <h2 id="total-<%= product._id %>" data-discount="<%= product.discount%>"
-                                data-price="<%= product.price %>" class="text-lg">₹ <%= product.price * item.quantity %>
+                                data-price="<%= product.price %>" class="text-sm sm:text-lg">₹ <%= product.price * item.quantity %>
                             </h2>
                         </div>
                     </div>
@@ -41,17 +41,17 @@
         </div>
 
         <!-- RIGHT SIDE: Fixed position panel, never scrolls away -->
-        <div class="w-[30%] h-full shrink-0 border-l border-zinc-200 pl-10">
+        <div class="w-full shrink-0 border-t border-zinc-200 pt-6 lg:h-full lg:w-[30%] lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
             <h2 class="text-xl font-medium">Price Breakdown</h2>
             <div class="px-2 mt-3">
                 <h3 class="text-xl font-medium">Items:</h3>
                 <ul class="bg-zinc-300 p-3 rounded-md">
                     <% user.cart.forEach((item)=> { %>
-                        <div class="flex justify-between">
+                        <div class="flex flex-wrap justify-between gap-2">
                             <li class="list-disc list-inside">
                                 <%= item.product.name %>
                             </li>
-                            <div class="w-[35%] flex justify-between">
+                            <div class="flex w-full justify-between gap-3 sm:w-[35%]">
                                 <span id = "summary-item-qty-<%= item.product._id %>">Qty: <%= item.quantity %></span>
                                 <span id = "summary-item-total-price-<%= item.product._id %>" class="text-gray-600 font-bold">₹ <%= item.product.price * item.quantity%></span>
                             </div>
@@ -59,7 +59,7 @@
                         <% }) %>
                 </ul>
                 <div class="bg-zinc-100 p-3 rounded-md mt-3">
-                    <div class="flex justify-between">
+                    <div class="flex flex-wrap justify-between gap-2">
                         <h4 class="text-zinc-800">Total MRP</h4>
                         <% var sum=0; var discount=0; %>
                             <% user.cart.forEach((item)=> {
@@ -70,23 +70,23 @@
                                 <h4 id="summary-mrp" class="font-medium">₹ <%=sum%>
                                 </h4>
                     </div>
-                    <div class="flex mt-1 justify-between">
+                    <div class="flex flex-wrap mt-1 justify-between gap-2">
                         <h4 class="text-zinc-800">Discount on MRP</h4>
                         <h4 id='summary-discount' class="text-green-800">- ₹ <%= discount %>
                         </h4>
                     </div>
-                    <div class="flex mt-1 justify-between">
+                    <div class="flex flex-wrap mt-1 justify-between gap-2">
                         <h4 class="text-zinc-800">Platform Fee</h4>
                         <h4>₹ 20</h4>
                     </div>
-                    <div class="flex mt-1 justify-between">
+                    <div class="flex flex-wrap mt-1 justify-between gap-2">
                         <h4 class="text-zinc-800">Shipping Fee</h4>
                         <h4 class="text-green-800">FREE</h4>
                     </div>
                 </div>
                 <div class="w-full h-[1px] bg-zinc-300 mt-8"></div>
             </div>
-            <div class="flex mt-5 justify-between items-center">
+            <div class="flex items-center justify-between gap-3 pb-10 pt-5 sm:pb-12">
                 <h3 class="text-xl font-medium">Total Amount</h3> <% let totalAmt = user.cart.length>0?((sum - discount) + 20):0 %>
                 <h3 id="summary-total" class="font-semibold text-2xl text-green-600">₹ <%= totalAmt %>
                 </h3>

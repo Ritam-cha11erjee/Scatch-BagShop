@@ -10,19 +10,19 @@
 
 <% const renderProductCard = function(product) { %>
     <div
-        class="w-[13rem] rounded-md overflow-hidden transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg group">
+        class="w-full min-w-0 rounded-md overflow-hidden transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg group">
 
         <div
-            class="w-full h-52 flex items-center justify-center bg-[<%= product.bgcolor %>] overflow-hidden">
-            <img class="h-[11rem] transition-transform duration-700 ease-in-out group-hover:scale-110 object-contain"
+            class="w-full h-40 flex items-center justify-center bg-[<%= product.bgcolor %>] overflow-hidden sm:h-52">
+            <img class="h-32 max-w-full transition-transform duration-700 ease-in-out group-hover:scale-110 object-contain sm:h-[11rem]"
                 src="data:image/jpeg;base64,<%= product.image.toString('base64') %>"
                 alt="<%= product.name %>">
         </div>
 
         <div
-            class="flex justify-between bg-[<%= product.panelcolor %>] items-center px-4 py-4 text-[<%= product.textcolor %>]">
-            <div>
-                <h3 class="font-medium">
+            class="flex items-center justify-between gap-2 bg-[<%= product.panelcolor %>] px-3 py-4 text-[<%= product.textcolor %>] sm:px-4">
+            <div class="min-w-0">
+                <h3 class="truncate font-medium">
                     <%= product.name %>
                 </h3>
                 <div class="flex items-center mt-0.5">
@@ -46,11 +46,19 @@
 <% } %>
 
 
-<div class="w-full flex items-start px-10 pt-10 h-[calc(100vh-70px)] overflow-hidden">
+<div class="flex w-full min-h-[calc(100vh-70px)] flex-col items-start gap-6 px-4 pt-6 sm:px-6 lg:flex-row lg:gap-0 lg:px-10 lg:pt-10 lg:h-[calc(100vh-70px)] lg:overflow-hidden">
+
+    <button id="sidebar-toggle" type="button" aria-controls="shop-sidebar" aria-expanded="false"
+        class="fixed left-0 top-[5.5rem] z-40 flex h-11 w-11 items-center justify-center rounded-r-md bg-zinc-900 text-2xl text-white shadow-lg transition-[left] duration-300 hover:bg-zinc-700 lg:hidden">
+        <span id="sidebar-toggle-icon" aria-hidden="true">&gt;</span>
+        <span id="sidebar-toggle-label" class="sr-only">Open filters</span>
+    </button>
+    <div id="sidebar-backdrop" class="fixed inset-0 z-20 hidden bg-black/30 lg:hidden"></div>
 
     <!-- Left Sidebar -->
-    <div class="w-[22%] pl-10 flex h-full flex-col items-start text-[1.3rem] shrink-0 border-r border-zinc-200 pr-10">
-        <div class="flex items-center gap-2">
+    <div id="shop-sidebar"
+        class="fixed left-0 top-0 z-30 flex h-screen w-[min(18rem,85vw)] -translate-x-full flex-col items-start overflow-y-auto border-r border-zinc-200 bg-white p-5 pb-6 pt-[5.5rem] text-base shadow-xl transition-transform duration-300 ease-out sm:p-6 sm:pt-[5.5rem] sm:text-lg lg:static lg:h-full lg:w-[22%] lg:translate-x-0 lg:overflow-visible lg:border-b-0 lg:border-r lg:bg-transparent lg:p-0 lg:pl-10 lg:pr-10 lg:shadow-none lg:text-[1.3rem]">
+        <div class="flex w-full flex-wrap items-center gap-2">
             <h3>sort by</h3>
             <form action="/shop">
                 <select class="border-[1px] px-2 py-1" name="sortby" id="">
@@ -59,7 +67,7 @@
                 </select>
             </form>
         </div>
-        <div class="flex flex-col mt-20">
+        <div class="mt-6 flex flex-col sm:mt-10 lg:mt-20">
             <a class="block w-fit mb-2 <%= selectedCategory == 'newCollection'?'font-bold underline':'' %>"
                 href="/shop/newCollection">New Collection</a>
             <a class="block w-fit mb-2 <%= selectedCategory == 'all'?'font-bold underline':'' %>"
@@ -67,20 +75,20 @@
             <a class="block w-fit mb-2 <%= selectedCategory == 'discounts'?'font-bold underline':'' %>"
                 href="/shop/discounts">Discounted Products</a>
         </div>
-        <div class="mt-32">
+        <div class="mt-6 lg:mt-32">
             <h3 class="block w-fit mb-2" href="">Filter by :</h3>
             <a class="block w-fit mb-2" href="/shop">Availability</a>
             <a class="block w-fit mb-2" href="/shop/discounts">Discount</a>
         </div>
     </div>
     <!-- Products Container -->
-    <div class="w-[78%] pb-10 pl-10 h-full flex flex-col gap-5 overflow-y-auto content-start scrollbar-thin scrollbar-thumb-zinc-300 scrollbar-track-transparent hover:scrollbar-thumb-zinc-400">
+    <div class="flex w-full flex-col content-start gap-5 pb-10 lg:h-full lg:w-[78%] lg:overflow-y-auto lg:pl-10 scrollbar-thin scrollbar-thumb-zinc-300 scrollbar-track-transparent hover:scrollbar-thumb-zinc-400">
 
         <!-- Section 1: New Collection -->
         <% if(selectedCategory == 'all' || selectedCategory == 'newCollection'){ %>
         <div>
             <h2 class="text-2xl font-semibold mb-4 text-zinc-800">New Collection</h2>
-            <div class="flex items-start flex-wrap gap-5">
+            <div class="grid grid-cols-2 items-start gap-4 sm:grid-cols-3 sm:gap-5 xl:grid-cols-4">
                 <% newCollection.forEach((product) => { %>
                     <% renderProductCard(product); %>
                 <% }) %>
@@ -92,7 +100,7 @@
         <% if(selectedCategory == 'all' || selectedCategory == 'discounts'){ %>
         <div>
             <h2 class="text-2xl font-semibold mb-4 text-zinc-800">Browse Products</h2>
-            <div class="flex items-start flex-wrap gap-5">
+            <div class="grid grid-cols-2 items-start gap-4 sm:grid-cols-3 sm:gap-5 xl:grid-cols-4">
                 <% browseProducts.forEach((product) => { %>
                     <% renderProductCard(product); %>
                 <% }) %>
@@ -111,6 +119,34 @@
 
     </div>
 </div>
+
+<script>
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('shop-sidebar');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+    const sidebarToggleIcon = document.getElementById('sidebar-toggle-icon');
+    const sidebarToggleLabel = document.getElementById('sidebar-toggle-label');
+
+    function setSidebarOpen(isOpen) {
+        sidebar.classList.toggle('-translate-x-full', !isOpen);
+        sidebar.classList.toggle('translate-x-0', isOpen);
+        sidebarToggle.classList.toggle('left-0', !isOpen);
+        sidebarToggle.classList.toggle('left-[min(18rem,85vw)]', isOpen);
+        sidebarBackdrop.classList.toggle('hidden', !isOpen);
+        sidebarToggle.setAttribute('aria-expanded', String(isOpen));
+        sidebarToggleIcon.textContent = isOpen ? '<' : '>';
+        sidebarToggleLabel.textContent = isOpen ? 'Close filters' : 'Open filters';
+        document.body.classList.toggle('overflow-hidden', isOpen);
+    }
+
+    sidebarToggle.addEventListener('click', () => {
+        setSidebarOpen(sidebarToggle.getAttribute('aria-expanded') !== 'true');
+    });
+    sidebarBackdrop.addEventListener('click', () => setSidebarOpen(false));
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024) setSidebarOpen(false);
+    });
+</script>
 
 <style>
         .overflow-y-auto::-webkit-scrollbar {
